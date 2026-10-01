@@ -4,7 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>body { margin: 0; } #map { height: 100vh; width: 100%; }</style>
+  <style>
+    body { margin: 0; }
+    #map { height: 100vh; width: 100%; }
+    .leaflet-popup-content { font-size: 14px; line-height: 1.5; }
+  </style>
 </head>
 <body>
   <div id="map"></div>
@@ -16,17 +20,28 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
+
+    var markers = [];
     data.forEach(function(r) {
-      L.marker([r.lat, r.lng]).addTo(map).bindPopup(
+      var marker = L.marker([r.lat, r.lng]);
+      var html = '<div style="min-width:180px">' +
         '<strong>' + r.vin + '</strong><br/>' +
         'Cliente: ' + r.customer + '<br/>' +
         'Estatus: ' + r.status + '<br/>' +
         'Km: ' + r.mileage.toLocaleString('es-MX') + '<br/>' +
         'Combustible: ' + r.fuel + '%<br/>' +
         'Horas motor: ' + r.engineHours.toLocaleString('es-MX') + '<br/>' +
-        'Falla: ' + r.faultCode
-      );
+        'Falla: ' + r.faultCode +
+        '</div>';
+      marker.bindPopup(html);
+      marker.on('click', function() { marker.openPopup(); });
+      marker.addTo(map);
+      markers.push(marker);
     });
+
+    if (markers.length === 1) {
+      markers[0].openPopup();
+    }
   </script>
 </body>
 </html>
