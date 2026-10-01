@@ -12,10 +12,13 @@
   <script>
     var params = new URLSearchParams(window.location.search);
     var data = JSON.parse(decodeURIComponent(params.get('data') || '[]'));
-    var map = L.map('map').setView([20,-100], 5);
+    var map = L.map('map');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
+
+    var markers = [];
     data.forEach(function(r) {
-      L.marker([r.lat, r.lng]).addTo(map).bindPopup(
+      var m = L.marker([r.lat, r.lng]).addTo(map);
+      m.bindPopup(
         '<strong>' + r.vin + '</strong><br/>' +
         'Cliente: ' + r.customer + '<br/>' +
         'Km: ' + r.mileage.toLocaleString('es-MX') + '<br/>' +
@@ -23,7 +26,21 @@
         'Horas: ' + r.engineHours.toLocaleString('es-MX') + '<br/>' +
         'Falla: ' + r.faultCode
       );
+      markers.push(m);
     });
+
+    // Zoom to fit all markers
+    if (markers.length > 0) {
+      var group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.3));
+    } else {
+      map.setView([20, -100], 4);
+    }
+
+    // Open popup on first marker if only one
+    if (markers.length === 1) {
+      markers[0].openPopup();
+    }
   </script>
 </body>
 </html>
